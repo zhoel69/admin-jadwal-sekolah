@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Admin Jadwal Sekolah</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<style>
+
+body{
+    margin:0;
+    font-family:"Segoe UI",Arial,sans-serif;
+    background:linear-gradient(
+        135deg,
+        #eef7ff,
+        #ffffff
+    );
+    color:#263238;
+}
+
+
+.container{
+    max-width:450px;
+    margin:auto;
+    padding:20px;
+}
+
+
+.header{
+
+    background:white;
+    padding:25px;
+    border-radius:25px;
+    text-align:center;
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+    border-top:6px solid #0d6efd;
+
+}
+
+
+.header h1{
+    color:#0d47a1;
+    margin:0;
+}
+
+
+
+.form,
+.list{
+
+    background:white;
+    margin-top:20px;
+    padding:20px;
+    border-radius:25px;
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+
+}
+
+
+
+label{
+
+    display:block;
+    margin-top:15px;
+    font-weight:bold;
+    color:#1565c0;
+
+}
+
+
+input,select{
+
+    width:100%;
+    padding:13px;
+    margin-top:8px;
+    border-radius:15px;
+    border:1px solid #ddd;
+    font-size:15px;
+
+}
+
+
+
+button{
+
+    width:100%;
+    margin-top:20px;
+    padding:15px;
+    border:none;
+    border-radius:20px;
+    background:#1565c0;
+    color:white;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+
+}
+
+
+
+button:hover{
+
+    background:#0d47a1;
+
+}
+
+
+
+.status{
+
+    margin-top:15px;
+    text-align:center;
+    font-weight:bold;
+
+}
+
+
+
+
+.item{
+
+    margin-top:15px;
+    padding:15px;
+    border-radius:20px;
+    background:#eef6ff;
+    border-left:5px solid #1565c0;
+
+}
+
+
+
+.item b{
+
+    color:#0d47a1;
+
+}
+
+
+
+.hapus{
+
+    background:#d32f2f;
+    margin-top:10px;
+    padding:10px;
+    font-size:14px;
+
+}
+
+
+
+.hapus:hover{
+
+    background:#b71c1c;
+
+}
+
+
+
+</style>
+
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+
+<div class="header">
+
+<h1>
+⚙️ Admin Jadwal
+</h1>
+
+<p>
+Pengaturan Jadwal Pembelajaran
+</p>
+
+</div>
+
+
+
+
+
+<div class="form">
+
+
+<label>
+Hari
+</label>
+
+
+<select id="hari">
+
+<option>Senin</option>
+<option>Selasa</option>
+<option>Rabu</option>
+<option>Kamis</option>
+<option>Jumat</option>
+<option>Sabtu</option>
+<option>Minggu</option>
+
+</select>
+
+
+
+
+
+<label>
+Mata Pelajaran
+</label>
+
+
+<input 
+id="mata_pelajaran"
+type="text"
+placeholder="Masukkan mata pelajaran">
+
+
+
+
+
+<label>
+Guru
+</label>
+
+
+<input
+id="guru"
+type="text"
+placeholder="Masukkan nama guru">
+
+
+
+
+
+<button onclick="simpanJadwal()">
+
+💾 Simpan Jadwal
+
+</button>
+
+
+
+<div class="status" id="status"></div>
+
+
+</div>
+
+
+
+
+
+
+
+
+<div class="list">
+
+
+<h3>
+📚 Daftar Jadwal
+</h3>
+
+
+<div id="daftar">
+
+Memuat data...
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+
+
+<script>
+
+
+const SUPABASE_URL =
+"https://yynjkjyzijtukyhavmqn.supabase.co";
+
+
+const SUPABASE_KEY =
+"sb_publishable_kj0vTSzCm4T1-uvrOrB1GQ_x05jyqxa";
+
+
+
+const supabaseClient =
+supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
+
+
+
+
+
+
+
+async function simpanJadwal(){
+
+
+
+const hari =
+document.getElementById("hari").value;
+
+
+
+const mataPelajaran =
+document.getElementById("mata_pelajaran").value;
+
+
+
+const guru =
+document.getElementById("guru").value;
+
+
+
+
+
+if(!mataPelajaran){
+
+
+tampilStatus(
+"⚠️ Mata pelajaran belum diisi"
+);
+
+
+return;
+
+
+}
+
+
+
+
+
+const {error}=
+
+await supabaseClient
+
+.from("jadwal")
+
+.insert([
+
+{
+
+hari:hari,
+
+mata_pelajaran:mataPelajaran,
+
+guru:guru
+
+}
+
+]);
+
+
+
+
+
+
+if(error){
+
+
+tampilStatus(
+"❌ "+error.message
+);
+
+
+
+}else{
+
+
+tampilStatus(
+"✅ Jadwal berhasil disimpan"
+);
+
+
+
+document.getElementById(
+"mata_pelajaran"
+).value="";
+
+
+document.getElementById(
+"guru"
+).value="";
+
+
+
+tampilkanJadwal();
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+
+async function tampilkanJadwal(){
+
+
+
+const {data,error}=
+
+await supabaseClient
+
+.from("jadwal")
+
+.select("*")
+
+.order("id",{ascending:true});
+
+
+
+
+
+
+const tempat =
+document.getElementById("daftar");
+
+
+
+
+
+if(error){
+
+
+tempat.innerHTML =
+"❌ Gagal mengambil data";
+
+
+return;
+
+
+}
+
+
+
+
+
+if(data.length===0){
+
+
+tempat.innerHTML =
+"Belum ada jadwal";
+
+
+return;
+
+
+}
+
+
+
+
+
+
+tempat.innerHTML="";
+
+
+
+
+
+
+data.forEach(item=>{
+
+
+tempat.innerHTML +=
+
+
+`
+
+<div class="item">
+
+
+<b>
+${item.hari}
+</b>
+
+<br>
+
+📖 ${item.mata_pelajaran}
+
+<br>
+
+👤 ${item.guru || "-"}
+
+
+
+<button 
+class="hapus"
+onclick="hapusJadwal(${item.id})">
+
+🗑 Hapus
+
+</button>
+
+
+
+</div>
+
+`;
+
+
+
+});
+
+
+
+}
+
+
+
+
+
+
+
+
+async function hapusJadwal(id){
+
+
+
+const yakin =
+confirm(
+"Yakin ingin menghapus jadwal ini?"
+);
+
+
+
+if(!yakin) return;
+
+
+
+
+
+const {error}=
+
+await supabaseClient
+
+.from("jadwal")
+
+.delete()
+
+.eq("id",id);
+
+
+
+
+
+
+if(error){
+
+
+alert(
+"❌ Gagal hapus: "
++error.message
+);
+
+
+
+}else{
+
+
+alert(
+"✅ Jadwal berhasil dihapus"
+);
+
+
+
+tampilkanJadwal();
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+
+function tampilStatus(pesan){
+
+document.getElementById(
+"status"
+).innerHTML=pesan;
+
+}
+
+
+
+
+
+tampilkanJadwal();
+
+
+</script>
+
+
+</body>
+</html>
